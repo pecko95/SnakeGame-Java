@@ -1,8 +1,14 @@
 package com.petar;
 
-public class Main {
+import javax.swing.*;
+import java.awt.*;
+
+public class Main extends JFrame {
 
     public static void main(String[] args) {
-	// write your code here
+        EventQueue.invokeLater(() -> {
+            JFrame gameWindow = new GameWindow();
+            gameWindow.setVisible(true);
+        });
     }
 }
