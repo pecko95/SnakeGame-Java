@@ -9,6 +9,9 @@ public class Game extends JPanel implements ActionListener {
     private int WINDOW_WIDTH;
     private int WINDOW_HEIGHT;
     private Timer timer;
+    private int score = 0;
+    private boolean displayScore = false;
+    private boolean gameRunning = false;
 
     // Interval used for timer representing how many times it gets called (in ms)
     private final int INTERVAL = 100;
@@ -48,6 +51,9 @@ public class Game extends JPanel implements ActionListener {
     }
 
     private void startGame() {
+        gameRunning = true;
+        displayScore = true;
+
         // Set starting snake length
         player.playerBody = 3;
 
@@ -71,21 +77,36 @@ public class Game extends JPanel implements ActionListener {
 
     // Draw the game in the window
     private void draw(Graphics g) {
-        // Draw the food
-        g.setColor(Color.orange);
-        g.fillRect(foodX, foodY, 10, 10);
+        // Print the score on the frame
+        if (displayScore) {
+            String scoreText = "Score: " + score;
+            Font smallFont = new Font("Helvetica", Font.BOLD, 18);
+            FontMetrics metrics = getFontMetrics(smallFont);
 
-        // Draw the player (snake) on the screen
-        for(int i = 0; i <  player.playerBody; i++) {
-            if (i == 0) {
-                // Draw  the head
-                g.setColor(Color.white);
-                g.fillRect(player.playerX[i], player.playerY[i], 10, 10);
-            } else {
-                // Draw the body of the snake
-                g.setColor(Color.red);
-                g.fillRect(player.playerX[i], player.playerY[i], 10, 10);
+            g.setColor(Color.white);
+            g.setFont(smallFont);
+            g.drawString(scoreText, 10, 10);
+        }
+
+        if (gameRunning) {
+            // Draw the food
+            g.setColor(Color.orange);
+            g.fillRect(foodX, foodY, 10, 10);
+
+            // Draw the player (snake) on the screen
+            for(int i = 0; i <  player.playerBody; i++) {
+                if (i == 0) {
+                    // Draw  the head
+                    g.setColor(Color.white);
+                    g.fillRect(player.playerX[i], player.playerY[i], 10, 10);
+                } else {
+                    // Draw the body of the snake
+                    g.setColor(Color.red);
+                    g.fillRect(player.playerX[i], player.playerY[i], 10, 10);
+                }
             }
+        } else {
+            endGame(g);
         }
     }
 
@@ -103,14 +124,30 @@ public class Game extends JPanel implements ActionListener {
         if (player.playerX[0] == foodX && player.playerY[0] == foodY) {
             createFood();
             player.playerBody++;
+            score++;
         }
     }
 
     private void checkCollision() {
         // If snake hits the walls
-        if (player.playerX[0] <= 0 || player.playerX[0] == WINDOW_WIDTH || player.playerY[0] <= 0 || player.playerY[0] == WINDOW_HEIGHT) {
-            System.out.println("SNAKE HAS HIT THE WALL");
+        if (player.playerX[0] <= 0 || player.playerX[0] == WINDOW_WIDTH || player.playerY[0] <= 0 || player.playerY[0] == WINDOW_HEIGHT) gameRunning = false;
+
+        // If snake hits itself. Why we iterate backwards??
+        for(int i = player.playerBody; i > 0; i--) {
+            if (player.playerX[0] == player.playerX[i] && player.playerY[0] == player.playerY[i]) gameRunning = false;
         }
+    }
+
+    private void endGame(Graphics g) {
+        displayScore = false;
+
+        String gameOverText = "Game over! Your score is: " + score;
+        Font smallFont = new Font("Helvetica", Font.BOLD, 16);
+        FontMetrics metrics = getFontMetrics(smallFont);
+
+        g.setColor(Color.white);
+        g.setFont(smallFont);
+        g.drawString(gameOverText, (WINDOW_WIDTH - metrics.stringWidth(gameOverText)) / 2, WINDOW_HEIGHT / 2);
     }
 
 
